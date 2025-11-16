@@ -1,14 +1,13 @@
-package com.example.module1;
+package com.example.circuitbreaker;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Module1Application {
+public class CircuitBreakerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Module1Application.class, args);
+        SpringApplication.run(CircuitBreakerApplication.class, args);
     }
 
 }

@@ -1,24 +1,9 @@
 spring:
-  kafka:
-    bootstrap-servers: localhost:9092
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: root
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        hbm2ddl:
-          auto: update
-logging:
-  level:
-    root: INFO
-    org.springframework: INFO
-    org.springframework.security: DEBUG
-    com.example.bankcards: DEBUG
-  file:
-    name: log
-server:
-  port: 8081
+  config:
+    import: "optional:configserver:http://localhost:8851"
+  application:
+    name: module1
+  cloud:
+    config:
+      uri: http://localhost:8851
+      enabled: true

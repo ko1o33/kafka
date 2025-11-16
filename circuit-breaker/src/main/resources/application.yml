@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+          - id: module1
+            uri: http://localhost:8081
+            predicates:
+            - Path=/server1/**
+            filters:
+              - StripPrefix=1
+              - name: CircuitBreaker
+                args:
+                  name: module1
+                  fallbackUri: forward:/fallback/module1
+
+          - id: module2
+            uri: http://localhost:8082
+            predicates:
+              - Path=/server2/**
+            filters:
+              - StripPrefix=1
+server:
+  port: 8861
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      module1:
+        register-health-indicator: true
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3

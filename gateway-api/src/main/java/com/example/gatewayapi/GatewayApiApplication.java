@@ -1,14 +1,13 @@
-package com.example.module1;
+package com.example.gatewayapi;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Module1Application {
+public class GatewayApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Module1Application.class, args);
+        SpringApplication.run(GatewayApiApplication.class, args);
     }
 
 }
