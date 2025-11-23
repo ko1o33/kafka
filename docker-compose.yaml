@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kafka-network
+
+  kafka:
+    image: apache/kafka:4.1.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    networks:
+      - kafka-network
+
+  service-discovery:
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
+    container_name: service-discovery
+    ports:
+      - "8871:8871"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - kafka-network
+
+  gateway-api:
+    build:
+      context: ./gateway-api
+      dockerfile: Dockerfile
+    container_name: gateway-api
+    ports:
+      - "8881:8881"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - service-discovery
+      - kafka
+      - postgres
+    networks:
+      - kafka-network
+
+  external-configuration:
+    build:
+      context: ./external-configuration
+      dockerfile: Dockerfile
+    container_name: external-configuration
+    ports:
+      - "8851:8851"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - kafka-network
+
+  api-service:
+    build:
+      context: ./module1
+      dockerfile: Dockerfile
+    container_name: api-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - external-configuration
+      - kafka
+      - postgres
+    networks:
+      - kafka-network
+
+  mail-service:
+    build:
+      context: ./modeule2
+      dockerfile: Dockerfile
+    container_name: mail-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - service-discovery
+      - kafka
+      - postgres
+    networks:
+      - kafka-network
+
+  circuit-breaker:
+    build:
+      context: ./circuit-breaker
+      dockerfile: Dockerfile
+    container_name: circuit-breaker
+    ports:
+      - "8861:8861"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+    depends_on:
+      - service-discovery
+      - kafka
+      - postgres
+    networks:
+      - kafka-network
+
+volumes:
+  postgres_data:
+
+networks:
+  kafka-network:
+    driver: bridge
